@@ -5,12 +5,16 @@ on:
     branches: [ "main", "master" ]
   workflow_dispatch:
 
+env:
+  CI: true
+  CAPACITOR_TELEMETRY: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout Source
         uses: actions/checkout@v4
 
       - name: Setup Node.js
@@ -18,38 +22,40 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install Project Dependencies
-        run: |
-          npm install --legacy-peer-deps
-          npm install @capacitor/core @capacitor/cli @capacitor/android --save-dev
-
-      - name: Create Capacitor Configuration
-        run: |
-          cat << 'EOF' > capacitor.config.json
-          {
-            "appId": "kr.co.bluecall.app",
-            "appName": "Blue Call",
-            "webDir": "dist",
-            "bundledWebRuntime": false
-          }
-          EOF
-
-      - name: Build Web Production Assets
-        run: npm run build
-
-      - name: Add and Sync Android Platform
-        run: |
-          rm -rf android
-          npx cap add android
-          npx cap sync android
-
       - name: Setup Java JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Grant Execute Permission to Gradle Wrapper
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install NPM Packages
+        run: |
+          npm install --legacy-peer-deps
+          npm install @capacitor/core@latest @capacitor/cli@latest @capacitor/android@latest --save-dev
+
+      - name: Generate Capacitor Config
+        run: |
+          cat << 'EOF' > capacitor.config.json
+          {
+            "appId": "kr.co.bluecall.app",
+            "appName": "Blue Call",
+            "webDir": "dist"
+          }
+          EOF
+
+      - name: Build Web Production
+        run: npm run build
+
+      - name: Add and Sync Android
+        run: |
+          rm -rf android
+          npx cap add android --no-telemetry || true
+          npx cap sync android --no-telemetry
+
+      - name: Grant Execute Permission to Gradle
         run: chmod +x android/gradlew
 
       - name: Build Android Debug APK
