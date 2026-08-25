@@ -26,13 +26,10 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          npm install
-          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npm install --legacy-peer-deps
+          npm install @capacitor/core@latest @capacitor/cli@latest @capacitor/android@latest --save-dev
 
-      - name: Build Web Application
-        run: npm run build
-
-      - name: Setup Capacitor Android
+      - name: Create Capacitor Config
         run: |
           cat << 'EOF' > capacitor.config.json
           {
@@ -41,6 +38,13 @@ jobs:
             "webDir": "dist"
           }
           EOF
+
+      - name: Build Web Application
+        run: npx vite build
+
+      - name: Add Android Platform
+        run: |
+          rm -rf android
           npx cap add android
           npx cap sync android
 
@@ -50,7 +54,7 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
-      - name: Upload APK File
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: BlueCall-debug-apk
