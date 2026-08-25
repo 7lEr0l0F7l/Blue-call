@@ -1,0 +1,6 @@
+{
+  "name": "Blue Call",
+  "description": "가상 안심번호와 RCS, AI 긴급분석 기반의 차세대 해상 안전통신 플랫폼",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

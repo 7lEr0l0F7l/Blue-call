@@ -1,0 +1,6 @@
+{
+  "appId": "kr.co.bluecall.app",
+  "appName": "Blue Call",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}
